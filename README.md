@@ -15,6 +15,18 @@ Temporal data related to data
 3. MoE Mamba 
 
 
+## Hyper parameters
+
+1. Window size
+2. Embedding dimension
+
+## Model architecture variatons
+
+1. Width/Depth of encoder
+![Alt text](imgs/encoder-workflow.png)
+2. Width/Depth of head
+![Alt text](imgs/pred-workflow.png)
+
 ## Training Encoder
 
 There are various ups and downs within temporal data. The goal is to train an encoder that captures an embedding that can be later used for forecasting.
