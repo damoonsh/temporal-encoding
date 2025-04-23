@@ -7,7 +7,7 @@ import torch.nn.functional as F
 
 
 class IndexData(Dataset):
-    def __init__(self, df, col, indexes, patch_length=WIN_SIZE, stride=STRIDE, return_y=False):
+    def __init__(self, df, col, indexes, patch_length, stride, return_y=False):
         """
         Args:
             dataframe (pd.DataFrame): Your input DataFrame with 'Open' column.
