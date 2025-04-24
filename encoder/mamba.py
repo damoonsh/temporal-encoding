@@ -77,13 +77,26 @@ class MambaLayer(nn.Module):
         return y
 
 class MambaEncoder(nn.Module):
-    def __init__(self):
+    def __init__(self, seq_len, in_dim, d_state, d_out, d_conv):
         super().__init__()
         self.mamba = nn.Sequential(
-            MambaLayer(1, d_state=4, d_out=4),
-            DyTanh((1000,4)),
-            MambaLayer(4, d_state=8, d_conv=8, expand=2, d_out=8),
-            DyTanh((1000, 8))
+            MambaLayer(in_dim, d_state=d_state, d_out=d_out, d_conv=d_conv),
+            DyTanh((seq_len, d_out)),
+            MambaLayer(d_out, d_state=d_state, d_out=d_out, d_conv=d_conv),
+            DyTanh((seq_len, d_out))
+        )
+
+    def forward(self, x):
+        return self.mamba(x)
+    
+class MambaEncoderU(nn.Module):
+    def __init__(self, seq_len, in_dim, d_state, d_out):
+        super().__init__()
+        self.mamba = nn.Sequential(
+            MambaLayer(1, d_state=d_state, d_out=4),
+            DyTanh((seq_len, 4)),
+            MambaLayer(4, d_state=d_state, d_conv=8, expand=2, d_out=8),
+            DyTanh((seq_len, 8))
         )
 
     def forward(self, x):

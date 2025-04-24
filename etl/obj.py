@@ -1,19 +1,13 @@
 import numpy as np
 import pandas as pd
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 import torch.nn as nn
 import torch.nn.functional as F
 
 
 class IndexData(Dataset):
     def __init__(self, df, col, indexes, patch_length, stride, return_y=False):
-        """
-        Args:
-            dataframe (pd.DataFrame): Your input DataFrame with 'Open' column.
-            patch_length (int): Length of each patch/window.
-            stride (int): Step size between patches (stride=1 for fully overlapping).
-        """
         self.open_values = df[col].values.astype(np.float32)
         self.patch_length = patch_length
         self.stride = stride
@@ -22,6 +16,8 @@ class IndexData(Dataset):
         total_length = len(self.open_values)
         self.index_map, self.indice_pos = [], []
         self.indices = []
+
+        if indexes == 'all': indexes = df['Index'].unique()
         
         for index_name in indexes:
             sub = df[df['Index'] == index_name].index

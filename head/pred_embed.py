@@ -5,20 +5,22 @@ import torch.nn.functional as F
 from utils import DyTanh
 
 class PredEmbed(nn.Module):
-    def __init__(self, encoder):
+    def __init__(self, encoder, seq_len, embed_dim):
         super(PredEmbed, self).__init__()
+        dim1 = seq_len * embed_dim
+        dim2, dim3 = dim1 // 2, dim1 // 4
         self.embed_encoder = encoder
         self.embed_proj = nn.Sequential(
-            nn.Linear(8000, 2048), # seq_len * embed_dim
+            nn.Linear(dim1, dim2),
             nn.ReLU(),
-            DyTanh(2048),
-            nn.Linear(2048, 512),
+            DyTanh(dim2),
+            nn.Linear(dim2, dim3),
             nn.ReLU(),
-            DyTanh(512)
+            DyTanh(dim3)
         )
-        self.raw_proj = nn.Sequential(nn.Linear(1000, 512), nn.ReLU())
+        self.raw_proj = nn.Sequential(nn.Linear(seq_len, dim3), nn.ReLU())
         self.pred_comb = nn.Sequential(
-            nn.Linear(1024, 1),
+            nn.Linear(2 * dim3, 1),
             nn.ReLU()
         )
 
@@ -29,7 +31,7 @@ class PredEmbed(nn.Module):
         nn.init.normal_(self.pred_comb[0].weight, mean=0.0, std=0.001)
 
     def forward(self, X):
-        with torch.no_grad(): embed = self.embed_encoder(X)
+        with torch.no_grad(): embed = self.embed_encoder(X) # (bs, seq_len, embed_dim)
         embed = torch.flatten(embed, start_dim=1)
         embed_projection = self.embed_proj(embed)
         X = X.squeeze(-1)
@@ -50,6 +52,8 @@ class MOEPred(nn.Module):
             nn.Linear(input_shape, num_experts),
             nn.Softmax(dim=-1)
         )
+
+        nn.init.normal_(self.gate[0].weight, mean=0.0, std=0.001)
 
         self.expert_usage = torch.zeros(num_experts)
         self.target_usage = 1.0 / self.num_experts
