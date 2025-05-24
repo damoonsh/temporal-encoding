@@ -1,11 +1,11 @@
-from encoder.mamba import MambaEncoder
-from head.pred_embed import PredEmbed
-from utils import BaseJepaPredictor
+from encoder.mamba_encoder import MambaEncoder
+from encoder.pred_embed import PredEmbed
+from utils.utils import BaseJepaPredictor
 from jepa import JEPA
 from etl.obj import IndexData
 import torch
 
-from utils import train_jepa_model
+from utils.utils import train_jepa_model
 from torch.utils.data import DataLoader
 
 def train_mamba_encoder_grid(params):
@@ -24,10 +24,8 @@ def train_mamba_encoder_grid(params):
 
     jepa_model = JEPA(
         encoder=mamba_encoder, 
-        predictor=BaseJepaPredictor(
-            input_size=params['input_size'], 
-            mask_ratio=params['mask_ratio']
-        )
+        predictor=BaseJepaPredictor(params['input_size'] * params['seq_len']),
+        mask_ratio=params['mask_ratio'] 
     )
 
     if 'jepa_model_pth_path' in params.keys():

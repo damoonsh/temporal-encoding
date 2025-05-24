@@ -5,32 +5,55 @@ from torch.utils.data import Dataset
 import torch.nn as nn
 import torch.nn.functional as F
 
-
 class IndexData(Dataset):
-    def __init__(self, df, col, indexes, patch_length, stride, return_y=False):
+    def __init__(self, df, col='Open', indexes='all', patch_length=32, num_patches=10, stride=1, return_y=False):
+        
         self.open_values = df[col].values.astype(np.float32)
         self.patch_length = patch_length
-        self.stride = stride
+        self.num_patches = num_patches
         self.return_y = return_y
         
-        total_length = len(self.open_values)
-        self.index_map, self.indice_pos = [], []
-        self.indices = []
-
-        if indexes == 'all': indexes = df['Index'].unique()
+        # Calculate total length needed for each sequence
+        self.total_length = patch_length * num_patches
+        self.indices = []  # Will store start indices for valid sequences
+        
+        if indexes == 'all':
+            indexes = df['Index'].unique()
         
         for index_name in indexes:
             sub = df[df['Index'] == index_name].index
-            self.indice_pos.append((sub.min(), sub.max()))
-            sub_indices = [(i,i+patch_length) for i in range(sub.min(), sub.max() - patch_length + 1, STRIDE)]
-            self.indices.extend(sub_indices)
+            start, end = sub.min(), sub.max()
+            
+            required_length = self.total_length + (patch_length if return_y else 0)
+            for seq_start in range(start, end - required_length + 1, stride):
+                if seq_start + required_length <= end:
+                    self.indices.append(seq_start)
 
     def __len__(self):
         return len(self.indices)
-        
+    
     def __getitem__(self, idx):
-        start_idx, end_idx = self.indices[idx]
-        patch = self.open_values[start_idx : end_idx]
-        patch = torch.tensor(patch).unsqueeze(1)  # Shape: [patch_length]
-        if self.return_y: return patch, self.open_values[end_idx]
-        return patch
+        start_idx = self.indices[idx]
+        
+        # Get the full sequence including y if required
+        sequence_length = self.total_length + (self.patch_length if self.return_y else 0)
+        sequence = torch.Tensor(self.open_values[start_idx:start_idx + sequence_length])
+        
+        # Split into x and y if required
+        x_sequence = sequence[:self.total_length]
+        
+        # Calculate statistics for normalization
+        means = torch.mean(x_sequence)
+        stds = torch.std(x_sequence) + 1e-3
+        
+        # Reshape x into (num_patches, patch_length)
+        patches = x_sequence.reshape(self.num_patches, self.patch_length)
+        patches = (patches - means) / stds
+        
+        if self.return_y:
+            # Get and normalize y using the same statistics as x
+            y_sequence = sequence[self.total_length:]
+            y_normalized = (y_sequence - means) / stds
+            return patches, y_normalized
+        
+        return patches

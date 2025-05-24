@@ -1,0 +1,4 @@
+**/**__pycache__**
+**/*.ipynb
+./tests/
+.DS_Store

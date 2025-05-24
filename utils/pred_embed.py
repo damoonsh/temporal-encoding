@@ -2,7 +2,24 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from utils import DyTanh
+from utils.utils import DyTanh
+
+class PredBlock(nn.Module):
+    def __init__(self, in_dim, out_dim):
+        super(PredBlock, self).__init__()
+        self.block = nn.Sequential(
+            nn.Linear(in_dim, in_dim),
+            nn.SiLU(),
+            nn.Linear(in_dim, in_dim),
+            nn.Linear(in_dim, out_dim)
+        )
+        for layer in self.block:
+            if isinstance(layer, nn.Linear):
+                nn.init.normal_(layer.weight, mean=0.0, std=0.001)
+                nn.init.zeros_(layer.bias)
+
+    def forward(self, x): return self.block(x)
+
 
 class PredEmbed(nn.Module):
     def __init__(self, encoder, seq_len, embed_dim):

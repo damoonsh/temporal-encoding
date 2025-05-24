@@ -38,3 +38,9 @@ There are various ups and downs within temporal data. The goal is to train an en
 3. Could we combine stock and weather and predict using different prediction heads?
 4. Can different attributes be treated as the original data? Train on stock price, then run on volume and close and then use it for representation?
 5. Can we train volume, open, and other stock attributes as flat: no counting them as features but separate attributes then use the representation for training? Would it be more effective to use a separate encoder for each feature? Or maybe a MOE structure for mambalayer can diversify without the need for multiple encoder
+
+
+# experiments
+
+- Bi-directional mamba
+- 
