@@ -1,14 +1,7 @@
+import torch
 import torch.nn as nn
 
-class DyTanh(nn.Module):
-    def __init__(self, shape, mean=0.5, std=0.001):
-        super(DyTanh, self).__init__()
-        self.scale = nn.Parameter(torch.randn(shape) * std + mean)
-        self.shift = nn.Parameter(torch.randn(shape) * std + mean)
-        self.alpha = nn.Parameter(torch.randn(shape) * std + mean)
-
-    def forward(self, x):
-        return self.scale * torch.tanh(self.alpha * x) + self.shift
+from utils import DyTanh
 
 class PatchConvBlock(nn.Module):
     def __init__(self, num_patch, patch_len, proj_dim, out_channels, kernel_size, stride):
