@@ -26,38 +26,44 @@ Our approach follows a three-stage pipeline:
 ### Architecture Overview
 
 ```mermaid
-%%{init: {'theme':'base', 'themeVariables': {'primaryColor': '#FF6B6B', 'primaryTextColor': '#000000', 'primaryBorderColor': '#000000', 'lineColor': '#4ECDC4', 'secondaryColor': '#45B7D1', 'tertiaryColor': '#96CEB4', 'background': '#ffffff', 'mainBkg': '#FF6B6B', 'secondBkg': '#45B7D1', 'tertiaryBkg': '#96CEB4'}}}%%
+%%{init: {'theme':'base', 'themeVariables': {'primaryColor': '#FF6B6B', 'primaryTextColor': '#000000', 'primaryBorderColor': '#000000', 'lineColor': '#000000', 'secondaryColor': '#45B7D1', 'tertiaryColor': '#96CEB4', 'background': '#ffffff', 'mainBkg': '#ffffff', 'secondBkg': '#ffffff', 'tertiaryBkg': '#ffffff'}}}%%
 graph TB
-    subgraph S1 ["🔄 Multi-Domain Data Sources"]
-        A[📈 Stock Data] --> D[🔧 Data Preprocessing]
-        B[₿ Crypto Data] --> D
-        C[🌤️ Weather Data] --> D
-        E[🌐 Website Traffic] --> D
+    subgraph S1 ["Multi-Domain Data Sources"]
+        A[Stock Data] --> D[Data Preprocessing]
+        B[Crypto Data] --> D
+        C[Weather Data] --> D
+        E[Website Traffic] --> D
     end
     
-    subgraph S2 ["🧩 Temporal Patch Encoding"]
-        D --> F[📦 Patch Creation<br/>Overlapping Windows]
-        F --> G[🔢 Linear Projection]
-        G --> H[🌊 Conv1D Embedding]
-        H --> I[📊 Temporal Features]
+    subgraph S2 ["Temporal Patch Encoding"]
+        D --> F[Patch Creation<br/>Overlapping Windows]
+        F --> G[Linear Projection]
+        G --> H[Conv1D Embedding]
+        H --> I[Temporal Features]
     end
     
-    subgraph S3 ["🎯 JEPA Training Process"]
-        I --> J[🎭 Random Masking<br/>70% Mask Ratio]
-        J --> K[🎓 Student Encoder<br/>Mamba Architecture]
-        J --> L[👨‍🏫 EMA Teacher Encoder<br/>Momentum Updates]
-        K --> M[🔮 Predictor Network]
-        L --> N[🎯 Target Representations]
-        M --> O[📉 Reconstruction Loss]
+    subgraph S3 ["JEPA Training Process"]
+        I --> J[Random Masking<br/>70% Mask Ratio]
+
+        J --> L[EMA Teacher Encoder<br/>Momentum Updates]
+        K --> M[Predictor Network]
+        J --> K[Student Encoder<br/>Mamba Architecture]
+        
+        L --> N[Target Representations]
+        M --> O[Reconstruction Loss]
         N --> O
     end
     
-    subgraph S4 ["🚀 Forecasting Pipeline"]
-        P[📥 New Input Data] --> D
-        I --> Q[🧠 Pre-trained Encoder]
-        Q --> R[📊 Forecasting Head]
-        R --> S[📈 Predictions]
+    subgraph S4 ["Forecasting Pipeline"]
+        P[New Input Data] --> D
+        L --> R[Forecasting Head]
+        R --> S[Predictions]
     end
+    
+    style S1 fill:#ffffff,stroke:#000,stroke-width:2px
+    style S2 fill:#ffffff,stroke:#000,stroke-width:2px
+    style S3 fill:#ffffff,stroke:#000,stroke-width:2px
+    style S4 fill:#ffffff,stroke:#000,stroke-width:2px
     
     style A fill:#FF6B6B,stroke:#000,stroke-width:2px,color:#fff
     style B fill:#FF6B6B,stroke:#000,stroke-width:2px,color:#fff
@@ -75,9 +81,12 @@ graph TB
     style N fill:#FECA57,stroke:#000,stroke-width:2px,color:#000
     style O fill:#FECA57,stroke:#000,stroke-width:2px,color:#000
     style P fill:#A8E6CF,stroke:#000,stroke-width:2px,color:#000
-    style Q fill:#A8E6CF,stroke:#000,stroke-width:2px,color:#000
     style R fill:#A8E6CF,stroke:#000,stroke-width:2px,color:#000
     style S fill:#A8E6CF,stroke:#000,stroke-width:2px,color:#000
+    
+    linkStyle 15 stroke:#FF8C00,stroke-width:3px
+    linkStyle 16 stroke:#FF8C00,stroke-width:3px
+    linkStyle 17 stroke:#FF8C00,stroke-width:3px
 ```
 
 ## Data Sources and Supported Domains
